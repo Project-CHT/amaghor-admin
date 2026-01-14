@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import { adminService, AdminStats } from '@/lib/services/adminService';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,12 +9,12 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { 
-  Users, 
-  Settings, 
-  FileText, 
-  BarChart3, 
-  Shield, 
+import {
+  Users,
+  Settings,
+  FileText,
+  BarChart3,
+  Shield,
   Database,
   Globe,
   Activity,
@@ -31,20 +32,36 @@ import {
 
 export default function AdminDashboard() {
   const [activeSection, setActiveSection] = useState('overview');
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Mock admin data
-  const adminStats = {
-    totalUsers: 1247,
-    activeUsers: 892,
-    totalBookings: 3456,
-    totalRevenue: 2847500,
-    websiteViews: 45678,
-    systemHealth: 98.5,
-    totalPackages: 156,
-    pendingApprovals: 12,
-    unreadMessages: 8,
-    totalTransportBookings: 1847,
-    activeTransportBookings: 234
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await adminService.getDashboardStats();
+        setStats(data);
+      } catch (error) {
+        console.error('Error fetching admin stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  // Use real stats with fallback to zeroes
+  const adminStats = stats || {
+    totalUsers: 0,
+    activeUsers: 0,
+    totalBookings: 0,
+    totalRevenue: 0,
+    websiteViews: 0,
+    systemHealth: 100,
+    totalPackages: 0,
+    pendingApprovals: 0,
+    unreadMessages: 0,
+    totalTransportBookings: 0,
+    activeTransportBookings: 0
   };
 
   const recentActivity = [
@@ -171,7 +188,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header hideSearch />
-      
+
       <div className="w-full max-w-[95%] md:max-w-7xl mx-auto px-2 md:px-4 py-6">
         {/* Header */}
         <div className="mb-6">
@@ -383,7 +400,7 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
       </div>
-      
+
       <Footer />
     </div>
   );
