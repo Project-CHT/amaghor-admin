@@ -4,8 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth.config';
+import { auth } from '@/lib/auth';
 
 const GO_SERVER_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9090';
 
@@ -56,7 +55,7 @@ async function handleProxyRequest(
 ) {
     try {
         // Get session for authentication
-        const session = await getServerSession(authOptions);
+        const session = await auth();
 
         // Construct the target URL
         const path = pathArray.join('/');

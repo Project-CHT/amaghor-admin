@@ -1,16 +1,7 @@
-import NextAuth, { type NextAuthOptions } from "next-auth";
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-// Mock admin user for demo purposes
-const ADMIN_USER = {
-  id: "1",
-  name: "Admin",
-  email: process.env.ADMIN_EMAIL || "admin@amaghor.com",
-  password: process.env.ADMIN_PASSWORD || "admin123",
-  role: "ADMIN"
-};
-
-const authOptions: NextAuthOptions = {
+export const { auth, handlers, signIn, signOut } = NextAuth({
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -23,9 +14,18 @@ const authOptions: NextAuthOptions = {
           return null;
         }
 
+        // Mock admin user for demo purposes
+        const ADMIN_USER = {
+          id: "1",
+          name: "Admin",
+          email: process.env.ADMIN_EMAIL || "admin@amaghor.com",
+          password: process.env.ADMIN_PASSWORD || "admin123",
+          role: "ADMIN"
+        };
+
         // Check if credentials match admin user
-        if (credentials.email === ADMIN_USER.email && 
-            credentials.password === ADMIN_USER.password) {
+        if (credentials.email === ADMIN_USER.email &&
+          credentials.password === ADMIN_USER.password) {
           return {
             id: ADMIN_USER.id,
             name: ADMIN_USER.name,
@@ -46,7 +46,7 @@ const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (token) {
+      if (token && session.user) {
         session.user.id = token.sub!;
         session.user.role = token.role as string;
       }
@@ -58,10 +58,7 @@ const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt"
-  }
-};
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+});
 
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
-export const handlers = { GET: handler, POST: handler };
-export { authOptions };
