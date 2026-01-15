@@ -28,7 +28,7 @@ This is the admin dashboard for the Amaghor platform, separated from the main we
    ```
    
    Update the `.env` file with your configuration:
-   - `DATABASE_URL`: Your database connection string
+
    - `NEXTAUTH_SECRET`: A secure random string for authentication
    - `NEXTAUTH_URL`: The URL where your admin panel is hosted (default: http://localhost:3001)
    - `ADMIN_EMAIL`: The email for the admin user

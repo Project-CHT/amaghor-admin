@@ -4,18 +4,21 @@
  * Requests go to /api/proxy/* which then forwards to the Go server
  */
 
-// Helper to get the correct base URL
+// Helper to determine the API base URL
 function getBaseUrl(): string {
-    // On server-side (SSR), use absolute URL
+    // On server-side (SSR), call the Go backend directly
     if (typeof window === 'undefined') {
-        return process.env.NEXTAUTH_URL || 'http://localhost:3001'; // Default admin port
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9090';
+        console.log(`[API Client] Server-side request configured for: ${apiUrl}`);
+        return apiUrl;
     }
-    // On client-side, use relative URL
-    return '';
+
+    // On client-side, use the Next.js proxy
+    return '/api/proxy';
 }
 
-// Use BFF proxy instead of direct Go server calls
-const API_BASE_URL = `${getBaseUrl()}/api/proxy`;
+// Base URL for API requests
+const API_BASE_URL = getBaseUrl();
 
 // Default timeout
 const API_TIMEOUT = 30000;
@@ -90,7 +93,7 @@ class ApiClient {
     private baseUrl: string;
 
     constructor(baseUrl?: string) {
-        this.baseUrl = baseUrl || `${getBaseUrl()}/api/proxy`;
+        this.baseUrl = baseUrl || API_BASE_URL;
     }
 
     /**
